@@ -40,6 +40,9 @@ async def _(event):
             os.remove("thumbnail.jpg")
         except:
             pass
+        cwd = os.getcwd()  # Get the current working directory (cwd)
+        files = os.listdir(cwd)  # Get all the files in that directory
+        print("Files in %r: %s" % (cwd, files))
         subprocess.call(f'''ffmpeg -i "{file_name}" -ss 00:00:00 -vframes 1 "thumbnail.jpg"''')
         file = await fast_upload(bot, file_name, reply= r)
         await bot.send_message(event.chat_id, f"`{name[1]}\n\nfile number: {name[0][:-1]}`", file=file, force_document=False)
