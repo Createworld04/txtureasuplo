@@ -35,6 +35,9 @@ async def _(event):
         name = i[0].split("\t")
         file_name = f"{name[1][:60]}.mkv"
         r = await event.reply(f"`Downloading...\n{name[1]}\n\nfile number: {name[0][:-1]}`")
+        cwd = os.getcwd()  # Get the current working directory (cwd)
+        files = os.listdir(cwd)  # Get all the files in that directory
+        print("Files in %r: %s" % (cwd, files))
         m3u8_To_MP4.download(i[1], mp4_file_name=file_name)
         try:
             os.remove("thumbnail.jpg")
