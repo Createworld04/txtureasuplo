@@ -28,7 +28,7 @@ async def _(event):
             links.append(i.split(":", 1))
         os.remove(x)
     except:
-        await event.reply("Invalid file input.")
+        event.reply("Invalid file input.")
         os.remove(x)
         return
     
@@ -38,19 +38,16 @@ async def _(event):
             name = i[0].split("\t")
             file_name = f"{name[1][:60]}.mkv"
             r = await event.reply(f"`Downloading...\n{name[1]}\n\nfile number: {name[0][:-1]}`")
-            m3u8_To_MP4.download(i[1], mp4_file_name=file_name)
-            print(1)
-            try:
-                os.remove("thumbnail.jpg")
-            except:
-                pass
-            print(2)
-            subprocess.call(f'''ffmpeg -i "{file_name}" -ss 00:00:00 -vframes 1 "thumbnail.jpg"''')
-            print(3)
+            await m3u8_To_MP4.download(i[1], mp4_file_name=file_name)
+            # try:
+            #     os.remove("thumbnail.jpg")
+            # except:
+            #     pass
+            # subprocess.call(f'''ffmpeg -i "{file_name}" -ss 00:00:00 -vframes 1 "thumbnail.jpg"''')
             file = await fast_upload(bot, file_name, reply= r)
-            await bot.send_message(event.chat_id, f"`{name[1]}\n\nfile number: {name[0][:-1]}`", file=file, force_document=False, thumb="thumbnail.jpg")
+            await bot.send_message(event.chat_id, f"`{name[1]}\n\nfile number: {name[0][:-1]}`", file=file, force_document=False)
             os.remove(file_name)
-            os.remove("thumbnail.jpg")
+            # os.remove("thumbnail.jpg")
             r.delete()
             break
     except Exception as e:
