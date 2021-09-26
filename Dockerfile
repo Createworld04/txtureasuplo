@@ -1,4 +1,4 @@
-FROM python:3.9.2-slim-buster
+FROM python:3.9.7-slim-buster
 
 RUN apt update
 RUN apt -qq update && apt -qq install -y git wget pv jq python3-dev ffmpeg mediainfo
