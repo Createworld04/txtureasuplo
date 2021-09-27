@@ -43,7 +43,7 @@ async def _(event):
             pass
         await asyncio.sleep(5)
         file = await fast_upload(bot, file_name, reply= r)
-        subprocess.call(f'''ffmpeg -i "{file_name}" -ss 00:00:01 -vframes 1 "thumbnail.jpg"''')
+        subprocess.call(f'ffmpeg -i "{file_name}" -ss 00:00:01 -vframes 1 "thumbnail.jpg"', shell=True)
         await bot.send_message(event.chat_id, f"`{name[1]}\n\nfile number: {name[0][:-1]}`", file=file, force_document=False, thumb="thumbnail.jpg")
         os.remove(file_name)
         os.remove("thumbnail.jpg")
