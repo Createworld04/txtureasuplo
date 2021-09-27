@@ -1,3 +1,4 @@
 m3u8_To_MP4
 telethon
 FastTelethonhelper
+requests
