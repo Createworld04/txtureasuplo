@@ -8,6 +8,7 @@ import subprocess
 import asyncio
 import datetime
 import downloader
+import helper
 
 logging.basicConfig(format='%(asctime)s | %(levelname)s | %(message)s',
                     level=logging.INFO)
@@ -75,9 +76,9 @@ async def _(event):
     arg = event.raw_text.split(" ")[1]
     date = datetime.date.today()
     now = datetime.datetime.now()
-    current_time = now.strftime("%H:%M:%S")
+    current_time = now.strftime("%H%M%S")
     file_name = f"{date} {current_time}.mp4"
-    r = event.reply("Trying do download.")
+    r = await event.reply("Trying do download.")
     try:
         if "m3u8" in arg:
             m3u8_To_MP4.download(arg, mp4_file_name=file_name)
@@ -86,7 +87,7 @@ async def _(event):
 
         if os.path.exists("thumbnail.jpg"):
             os.remove("thumbnail.jpg")
-            
+
         await asyncio.sleep(5)
         file = await fast_upload(bot, file_name, reply= r)
         subprocess.call(f'ffmpeg -i "{file_name}" -ss 00:00:01 -vframes 1 "thumbnail.jpg"', shell=True)
@@ -100,8 +101,34 @@ async def _(event):
         r.edit(f"File not downloaded/uploaded because of some error\nError:\n{e}")
 
 
+@bot.on(events.NewMessage(pattern="/txt"))
+async def _(event):
+    try:
+        x = await event.get_reply_message()
+        json_file = await bot.download_media(x)
+        res = helper.parse_json_to_txt(json_file)
+        await event.reply(file=res)
+        os.remove(json_file)
+        os.remove(res)
+    except:
+        await event.reply("Invalid Json file input.")
+
+
+@bot.on(events.NewMessage(pattern="/html"))
+async def _(event):
+    try:
+        x = await event.get_reply_message()
+        json_file = await bot.download_media(x)
+        res = helper.parse_json_to_html(json_file)
+        await event.reply(file=res)
+        os.remove(json_file)
+        os.remove(res)
+    except Exception as e:
+        print(e)
+        await event.reply("Invalid Json file input.")
+
+
 bot.start()
 
 bot.run_until_disconnected()
-
 
