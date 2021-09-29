@@ -6,7 +6,7 @@
     "success_url": "https://t.me/Portgas_D_ACEx",
     "stack": "container",
     "env": {
-        "APP_ID": {
+        "API_ID": {
             "description": "You api id, from my.telegram.org",
             "value": ""
         },
