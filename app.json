@@ -25,6 +25,14 @@
         "SKELETON_URL": {
             "description": "Put URL of your streaming app without the '/' at end",
             "value": ""
+        },
+        "AUTH_GROUPS": {
+            "description": "ID of the Groups with a space in between",
+            "value": ""
+        },
+        "AUTH_USERS": {
+            "description": "ID of the Users with a space in between",
+            "value": ""
         }
     }
 }
