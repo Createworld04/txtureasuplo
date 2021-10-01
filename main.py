@@ -61,7 +61,7 @@ async def _(event):
                 return
             name = links[i][0]
             file_name = f"{name[:60]}.mp4"
-            r = await event.reply(f"`Downloading...\n{name[1]}\n\nfile number: {i+1}`")
+            r = await event.reply(f"`Downloading...\n{name[:60]}\n\nfile number: {i+1}`")
             if "m3u8" in links[i][1]:
                 m3u8_To_MP4.download(links[i][1], mp4_file_name=file_name)
             else:
@@ -73,7 +73,7 @@ async def _(event):
             subprocess.call(f'ffmpeg -i "{file_name}" -ss 00:00:01 -vframes 1 "thumbnail.jpg"', shell=True)
             dur = int(helper.duration(file_name))
             await bot.send_message(
-                event.chat_id, f"`{name[1]}\n\nfile number: {i+1}`", 
+                event.chat_id, f"`{name[:60]}\n\nfile number: {i+1}`", 
                 file=file, 
                 force_document=False, 
                 thumb="thumbnail.jpg", 
@@ -82,10 +82,11 @@ async def _(event):
             os.remove(file_name)
             os.remove("thumbnail.jpg")
             await r.delete()
-        except:
+        except Exception as e:
+            print(e)
             pass
-
-
+          
+          
 @bot.on(events.NewMessage(pattern="/upload", chats=auth_groups, from_users=auth_users))
 async def _(event):
     arg = event.raw_text.split(" ", maxsplit = 1)[1]
