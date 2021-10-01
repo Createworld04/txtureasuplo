@@ -6,7 +6,7 @@ api_hash = os.environ.get('API_HASH')
 bot_token = os.environ.get('BOT_TOKEN')
 skeleton_url = os.environ.get('SKELETON_URL')
 auth_users = os.environ.get('AUTH_USERS').split()
-auth_groups = os.environ.get('AUTH_GROUPS').split()
+auth_groups = os.environ.get('AUTH_GROUP').split()
 for i in range(len(auth_users)):
     auth_users[i] = int(auth_users[i])
 for i in range(len(auth_groups)):
