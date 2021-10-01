@@ -59,7 +59,7 @@ async def _(event):
             if cancel == True:
                 await event.reply("Process canceled")
                 return
-            name = links[i][0]
+            name = links[i][0].replace("\t", "")
             file_name = f"{name[:60]}.mp4"
             r = await event.reply(f"`Downloading...\n{name[:60]}\n\nfile number: {i+1}`")
             if "m3u8" in links[i][1]:
