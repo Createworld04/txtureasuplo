@@ -36,9 +36,6 @@ async def DownLoadFile(url, chunk_size, reply, file_name="file.mkv"):
                 fd.write(chunk)
                 downloaded_size += chunk_size
                 if timer.can_send():
-                    try:
-                        await reply.edit(f"{human_readable_size(downloaded_size)}/{human_readable_size(total_size)}")
-                    except:
-                        pass
+                    pass
 
     await reply.edit("Uploading holdup")
