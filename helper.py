@@ -34,7 +34,7 @@ def parse_json_to_html(file_name):
         '''
         name = details[i]["lessonName"]
         id = details[i]["lessonUrl"][0]["link"]
-        link = f"https://thegreatace.herokuapp.com/{id}"
+        link = f"{skeleton_url}/{id}"
         body_syntax = body_syntax.replace("NAME", name)
         body_syntax = body_syntax.replace("LINK", link)
         with open(f"{batch_name}.html", "a", encoding='utf-8') as f:
