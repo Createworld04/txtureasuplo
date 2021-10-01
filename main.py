@@ -17,12 +17,12 @@ logging.basicConfig(format='%(asctime)s | %(levelname)s | %(message)s',
 
 cancel = False
 
-@bot.on(events.NewMessage(pattern="/start", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/start", chats=auth_groups, from_users=auth_users))
 async def _(event):
     await event.reply("Hello!")
 
 
-@bot.on(events.NewMessage(pattern="/cancel", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/cancel", chats=auth_groups, from_users=auth_users))
 async def _(event):
     global cancel
     cancel = True
@@ -30,7 +30,7 @@ async def _(event):
     return
 
 
-@bot.on(events.NewMessage(pattern="/download", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/download", chats=auth_groups, from_users=auth_users))
 async def _(event):
     global cancel
     cancel = False
@@ -83,7 +83,7 @@ async def _(event):
         await r.delete()
 
 
-@bot.on(events.NewMessage(pattern="/upload", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/upload", chats=auth_groups, from_users=auth_users))
 async def _(event):
     arg = event.raw_text.split(" ", maxsplit = 1)[1]
     arg = arg.split("|")
@@ -129,7 +129,7 @@ async def _(event):
         await r.edit(f"File not downloaded/uploaded because of some error\nError:\n{e}")
 
 
-@bot.on(events.NewMessage(pattern="/txt", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/txt", chats=auth_groups, from_users=auth_users))
 async def _(event):
     try:
         x = await event.get_reply_message()
@@ -142,7 +142,7 @@ async def _(event):
         await event.reply("Invalid Json file input.")
 
 
-@bot.on(events.NewMessage(pattern="/html", chats=auth_groups, users=auth_users))
+@bot.on(events.NewMessage(pattern="/html", chats=auth_groups, from_users=auth_users))
 async def _(event):
     try:
         x = await event.get_reply_message()
