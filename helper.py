@@ -90,7 +90,7 @@ def parse_vid_info(info):
     new_info = []
     for i in info:
         i = str(i)
-        if "[" not in i and '-' not in i:
+        if "[" not in i and '---' not in i:
             while "  " in i:
                 i = i.replace("  ", " ")
             i.strip()
@@ -104,7 +104,7 @@ def parse_vid_info(info):
 
 
 async def download_video(url, name, ytf):
-    cmd = f'yt-dlp -o "{name}" -f {ytf} "{url}"'
+    cmd = f'yt-dlp -o "{name}" -f {ytf}+bestaudio "{url}"'
     k = await run(cmd)
     return k
 
