@@ -1,6 +1,24 @@
 import json
 from config import skeleton_url
 import subprocess
+import datetime
+import asyncio
+
+
+async def run(cmd):
+    proc = await asyncio.create_subprocess_shell(
+        cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE)
+
+    stdout, stderr = await proc.communicate()
+
+    print(f'[{cmd!r} exited with {proc.returncode}]')
+    if stdout:
+        return f'[stdout]\n{stdout.decode()}'
+    if stderr:
+        return f'[stderr]\n{stderr.decode()}'
+
 
 def parse_json_to_txt(file_name):
     with open(file_name) as f:
@@ -49,3 +67,44 @@ def duration(filename):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
     return float(result.stdout)
+
+
+def human_readable_size(size, decimal_places=2):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB', 'PB']:
+        if size < 1024.0 or unit == 'PB':
+            break
+        size /= 1024.0
+    return f"{size:.{decimal_places}f} {unit}"
+
+
+def time_name():
+    date = datetime.date.today()
+    now = datetime.datetime.now()
+    current_time = now.strftime("%H%M%S")
+    return f"{date} {current_time}.mp4"
+
+
+def parse_vid_info(info):
+    info = info.strip()
+    info = info.split("\n")
+    new_info = []
+    for i in info:
+        i = str(i)
+        if "[" not in i and '-' not in i:
+            while "  " in i:
+                i = i.replace("  ", " ")
+            i.strip()
+            i = i.split("|")[0].split(" ",2)
+            try:
+                if "RESOLUTION" not in i[2]:
+                    new_info.append((i[0], i[2]))
+            except:
+                pass
+    return new_info
+
+
+async def download_video(url, name, ytf):
+    cmd = f'yt-dlp -o "{name}" -f {ytf} "{url}"'
+    k = await run(cmd)
+    return k
+
