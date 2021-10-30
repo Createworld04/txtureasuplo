@@ -1,15 +1,11 @@
 from telethon import events, Button
 from config import bot, auth_groups, auth_users
-import logging
 from FastTelethonhelper import fast_upload
 import os
 import subprocess
 import helper
 from telethon.tl.types import DocumentAttributeVideo
 
-
-logging.basicConfig(format='%(asctime)s | %(levelname)s | %(message)s',
-                    level=logging.INFO)
 
 cancel = False
 
@@ -64,9 +60,55 @@ async def _(event):
         await event.reply("Invalid file input.")
         os.remove(x)
         return
-        
     for i in range(arg, len(links)):
-        pass
+        try:
+            if cancel == True:
+                await event.reply("Process canceled")
+                return
+            url = links[i][1]
+            name = links[i][0].replace("\t", "")
+            filename = f"{name[:60]}.mp4"
+            r = await event.reply(f"`Downloading...\n{name[:60]}\n\nfile number: {i+1}`")
+            caption =  f"`{name[:60]}\n\nfile number: {i+1}`"
+            k = await helper.download_video(url, filename)
+            print(k)
+            res_file = await fast_upload(bot, filename, r)
+            subprocess.call(f'ffmpeg -i "{filename}" -ss 00:00:01 -vframes 1 "{filename}.jpg"', shell=True)
+            dur = int(helper.duration(filename))
+            try:
+                await bot.send_message(
+                    event.chat_id, 
+                    caption, 
+                    file=res_file, 
+                    force_document=False, 
+                    thumb=f"{filename}.jpg", 
+                    supports_streaming=True, 
+                    attributes=[DocumentAttributeVideo(
+                        duration=dur, 
+                        w=1260, 
+                        h=720, 
+                        supports_streaming=True
+                    )]
+                )
+            except:
+                await bot.send_message(
+                    event.chat_id,
+                    "There was an error while uploading file as streamable so, now trying to upload as document."
+                )
+                await bot.send_message(
+                    event.chat_id, 
+                    caption, 
+                    file=res_file, 
+                    force_document=True,
+                )
+            os.remove(filename)
+            os.remove(f"{filename}.jpg")
+            await r.delete()
+
+        
+        except Exception as e:
+            print(e)
+            pass
           
           
 @bot.on(events.NewMessage(pattern="/upload"))
@@ -80,7 +122,7 @@ async def _(event):
     arg = arg.split("|")
     if len(arg) == 1:
         file_name = helper.time_name()
-        caption = None
+        caption = ''
     elif len(arg) == 2:
         file_name = arg[1].strip()
         caption = arg[1].strip()
@@ -94,7 +136,12 @@ async def _(event):
     print(out)
     buttons = []
     for i in out:
-        buttons.append([Button.inline(i[1], data=f"id:{i[0]}")])
+        if 'youtu' in arg[0]:
+            print(i[1])
+            x = i[1].split()[0].split("x")[-1]
+            buttons.append([Button.inline(i[1], data=f"id:bestvideo[height<={x}][ext=mp4]")])
+        else:
+            buttons.append([Button.inline(i[1], data=f"id:{i[0]}")])
     await bot.send_message(event.chat_id, f"`Name: {file_name}`\n`Caption: {caption}`\n`Url: {arg[0]}`", buttons=buttons)
     
 
@@ -112,7 +159,8 @@ async def _(event):
         await event.reply(f"{count} links detected." ,file=res)
         os.remove(json_file)
         os.remove(res)
-    except:
+    except Exception as e:
+        print(e)
         await event.reply("Invalid Json file input.")
 
 
@@ -140,22 +188,24 @@ async def _(event):
     data = event.data.decode('utf-8')
     data = data.split(":")
     msg = await bot.get_messages(event.chat_id, ids=event.message_id)
+    await msg.edit(buttons=None)
     msg = msg.raw_text.split("\n")
-    filename = msg[0].replace("Name: ", "")
+    file_name = msg[0].replace("Name: ", "")
     caption = msg[1].replace("Caption: ", "")
     url = msg[2].replace("Url: ", "") 
     vid_id = (data[1])
-    k = await helper.download_video(url, filename, vid_id)
+    filename = await helper.download_video(url, file_name, vid_id)
     res_file = await fast_upload(bot, filename, r)
     subprocess.call(f'ffmpeg -i "{filename}" -ss 00:00:01 -vframes 1 "{filename}.jpg"', shell=True)
-    dur = int(helper.duration(filename))
+    thumbnail = f"{filename}.jpg"
     try:
+        dur = int(helper.duration(filename))
         await bot.send_message(
             event.chat_id, 
-            f"`{caption}`", 
+            f"{caption}", 
             file=res_file, 
             force_document=False, 
-            thumb=f"{filename}.jpg", 
+            thumb=thumbnail, 
             supports_streaming=True, 
             attributes=[DocumentAttributeVideo(
                 duration=dur, 
@@ -179,8 +229,8 @@ async def _(event):
 
     os.remove(filename)
     os.remove(f"{filename}.jpg")
-    await r.delete()   
 
+    await r.delete()   
 
 
 bot.start()

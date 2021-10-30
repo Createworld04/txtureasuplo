@@ -3,7 +3,7 @@ from config import skeleton_url
 import subprocess
 import datetime
 import asyncio
-
+import os
 
 async def run(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -23,17 +23,24 @@ async def run(cmd):
 def parse_json_to_txt(file_name):
     with open(file_name) as f:
         data = json.load(f)
-    details = data["data"]["class_list"]["classes"]
     res = ""
-    batch_name = data["data"]["class_list"]["batchName"]
-    for i in details:
-        name = i["lessonName"]
-        id = i["lessonUrl"][0]["link"]
-        link = f"{skeleton_url}/{id}"
-        res = f"{name}:{link}\n{res}"
-    new_file_name = f"{batch_name}.txt"
+    try:
+        details = data["data"]["class_list"]["classes"]
+        batch_name = data["data"]["class_list"]["batchName"]
+        for i in details:
+            name = i["lessonName"]
+            id = i["lessonUrl"][0]["link"]
+            link = f"{skeleton_url}/{id}"
+            res = f"{name}:{link}\n{res}"
+        new_file_name = f"{batch_name}.txt"
+    except:
+        new_file_name = f"{file_name}.txt"
+        details = data
+        for i in details:
+            res = f"{res}\n{i['episode_number']}:{i['file_url']}"
+
     with open(new_file_name, "w", encoding='utf-8') as f:
-        f.write(res.strip())
+            f.write(res.strip())
     return (new_file_name, len(details))
 
 
@@ -88,6 +95,7 @@ def parse_vid_info(info):
     info = info.strip()
     info = info.split("\n")
     new_info = []
+    temp = []
     for i in info:
         i = str(i)
         if "[" not in i and '---' not in i:
@@ -96,15 +104,27 @@ def parse_vid_info(info):
             i.strip()
             i = i.split("|")[0].split(" ",2)
             try:
-                if "RESOLUTION" not in i[2]:
+                if "RESOLUTION" not in i[2] and i[2] not in temp and "audio" not in i[2]:
+                    temp.append(i[2])
                     new_info.append((i[0], i[2]))
             except:
                 pass
     return new_info
 
 
-async def download_video(url, name, ytf):
-    cmd = f'yt-dlp -o "{name}" -f {ytf}+bestaudio "{url}"'
+async def download_video(url, name, ytf="bestvideo[height<=720]"):
+    cmd = f'yt-dlp -o "{name}" -f "{ytf}+bestaudio" "{url}"'
     k = await run(cmd)
-    return k
+    print(k)
+    if os.path.isfile(name):
+        return name
+    elif os.path.isfile(f"{name}.webm"):
+        return f"{name}.webm"
+    name = name.split(".")[0]
+    if os.path.isfile(f"{name}.mkv"):
+        return f"{name}.mkv"
+    elif os.path.isfile(f"{name}.mp4"):
+        return f"{name}.mp4"
+
+    return name
 
